@@ -44,3 +44,21 @@ if __name__ == "__main__":
     print "Encrypted: {}".format(stoh(enc))
     print "Key:       {}".format(stoh(key))
     print "Plain:     {}".format(plain)
+    # Program 4 Tests
+    print "## Program 4 ##"
+    import requests
+    url = raw_input("URL: ")
+    r = requests.get(url)
+    lines = r.content.split("\n")
+    best = ['','',total]
+    for line in lines:
+        if not line: continue
+        line = htos(line)
+        key = crack(line)
+        score = fscore(line, key)
+        if score < best[2]:
+            best[0] = line
+            best[1] = key
+            best[2] = score
+    print "XOR'd: {}".format(stoh(best[0]))
+    print "Plain: {}".format(xor(best[0],best[1]))
