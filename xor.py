@@ -1,5 +1,10 @@
 from nltk.corpus import brown
 from hexutils import *
+from hamming import hamming
+
+KEY_DEPTH     = 3
+HAMMING_DEPTH = 10
+MAX_KEY_SIZE  = 40
 
 char_counts = [1 for i in range(256)]
 for char in brown.raw():
@@ -19,8 +24,28 @@ def fscore(text):
         summation += ((text_counts[c]/length) / (char_counts[c]/total)) ** 2
     return summation
 
+def _hammingcrack(enc):
+    key_sizes = []
+    for key_size in range(1, MAX_KEY_SIZE):
+        dist = 0.0
+        for i in range(HAMMING_DEPTH):
+            block1 = enc[key_size*i:key_size*(i+1)]
+            block2 = enc[key_size*(i+1):key_size*(i+2)]
+            dist += hamming(block1, block2)
+        dist /= key_size*HAMMING_DEPTH
+        key_sizes.append([key_size, dist])
+    key_sizes.sort(key=lambda x: x[1])
+    keys = []
+    for index in range(KEY_DEPTH):
+        key_size = key_sizes[index][0]
+        key = crack(enc, key_size)
+        plain = xor(enc, key)
+        keys.append([key, fscore(plain)])
+    keys.sort(key=lambda x: x[1])
+    return keys[0][0]
+
 def crack(enc, key_size=-1):
-    if key_size == -1: return '\x04'
+    if key_size == -1: return _hammingcrack(enc)
     key = ''
     for i in range(key_size):
         block = enc[i::key_size]
@@ -76,3 +101,13 @@ if __name__ == "__main__":
     print "Key:      {}".format(key)
     print "XOR'd:    {}".format(stoh(enc))
     print "Expected: {}".format(expected)
+    # Program 6 Tests
+    print "## Program 6 ##"
+    url = "https://gist.github.com/tqbf/3132752/raw/cecdb818e3ee4f5dda6f0847bfd90a83edb87e73/gistfile1.txt"
+    r = requests.get(url)
+    enc = btos(r.content)
+    key = crack(enc)
+    plain = xor(enc, key)
+    print "Key:      {}".format(key)
+    print "Plain:    {}".format(plain)
+    
