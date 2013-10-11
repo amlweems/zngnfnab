@@ -1,6 +1,8 @@
 from nltk.corpus import brown
 from hexutils import *
 from hamming import hamming
+import requests
+import sys
 
 KEY_DEPTH     = 3
 HAMMING_DEPTH = 10
@@ -56,8 +58,7 @@ def crack(enc, key_size=-1):
         key += chr(best)
     return key
 
-if __name__ == "__main__":
-    # Program 2 Tests
+def _test2():
     print "## Program 2 ##"
     plain = htos("1c0111001f010100061a024b53535009181c")
     key = htos("686974207468652062756c6c277320657965")
@@ -65,7 +66,8 @@ if __name__ == "__main__":
     print "Plain:     {}".format(stoh(plain))
     print "Key:       {}".format(stoh(key))
     print "Encrypted: {}".format(stoh(enc))
-    # Program 3 Tests
+
+def _test3():
     print "## Program 3 ##"
     enc = htos("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
     key = crack(enc, key_size=1)
@@ -73,7 +75,8 @@ if __name__ == "__main__":
     print "Encrypted: {}".format(stoh(enc))
     print "Key:       {}".format(stoh(key))
     print "Plain:     {}".format(plain)
-    # Program 4 Tests
+
+def _test4():
     print "## Program 4 ##"
     import requests
     url = "https://gist.github.com/tqbf/3132713/raw/40da378d42026a0731ee1cd0b2bd50f66aabac5b/gistfile1.txt"
@@ -91,7 +94,8 @@ if __name__ == "__main__":
             best[2] = score
     print "XOR'd: {}".format(stoh(best[0]))
     print "Plain: {}".format(xor(best[0],best[1]))
-    # Program 5 Tests
+
+def _test5():
     print "## Program 5 ##"
     plain = "Burning 'em, if you ain't quick and nimble"
     key = "ICE"
@@ -101,7 +105,8 @@ if __name__ == "__main__":
     print "Key:      {}".format(key)
     print "XOR'd:    {}".format(stoh(enc))
     print "Expected: {}".format(expected)
-    # Program 6 Tests
+
+def _test6():
     print "## Program 6 ##"
     url = "https://gist.github.com/tqbf/3132752/raw/cecdb818e3ee4f5dda6f0847bfd90a83edb87e73/gistfile1.txt"
     r = requests.get(url)
@@ -110,4 +115,6 @@ if __name__ == "__main__":
     plain = xor(enc, key)
     print "Key:      {}".format(key)
     print "Plain:    {}".format(plain)
-    
+
+if __name__ == "__main__":
+    _test6()
