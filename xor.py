@@ -9,23 +9,27 @@ total = float(sum(char_counts))
 def xor(plain, key):
     return ''.join(chr(ord(plain[i])^ord(key[i%len(key)])) for i in range(len(plain)))
 
-def fscore(enc, key):
-    length = float(len(enc))
+def fscore(text):
+    length = float(len(text))
     summation = 0
     text_counts = [0 for i in range(256)]
-    for letter in enc:
-        text_counts[ord(letter)^ord(key)] += 1
+    for letter in text:
+        text_counts[ord(letter)] += 1
     for c in range(256):
         summation += ((text_counts[c]/length) / (char_counts[c]/total)) ** 2
     return summation
 
-def crack(enc, key_length=1):
-    if key_length > 1: return '\x04'
-    guesses = [0 for i in range(256)]
-    for key in range(256):
-        guesses[key] = fscore(enc, chr(key))
-    best = guesses.index(min(guesses))
-    return chr(best)
+def crack(enc, key_size=-1):
+    if key_size == -1: return '\x04'
+    key = ''
+    for i in range(key_size):
+        block = enc[i::key_size]
+        guesses = [0 for i in range(256)]
+        for k in range(256):
+            guesses[k] = fscore(xor(block, chr(k)))
+        best = guesses.index(min(guesses))
+        key += chr(best)
+    return key
 
 if __name__ == "__main__":
     # Program 2 Tests
@@ -39,7 +43,7 @@ if __name__ == "__main__":
     # Program 3 Tests
     print "## Program 3 ##"
     enc = htos("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
-    key = crack(enc)
+    key = crack(enc, key_size=1)
     plain = xor(enc, key)
     print "Encrypted: {}".format(stoh(enc))
     print "Key:       {}".format(stoh(key))
@@ -54,8 +58,8 @@ if __name__ == "__main__":
     for line in lines:
         if not line: continue
         line = htos(line)
-        key = crack(line)
-        score = fscore(line, key)
+        key = crack(line, key_size=1)
+        score = fscore(xor(line, key))
         if score < best[2]:
             best[0] = line
             best[1] = key
