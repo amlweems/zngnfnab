@@ -113,8 +113,9 @@ def _test6():
     enc = btos(r.content)
     key = crack(enc)
     plain = xor(enc, key)
-    print "Key:      {}".format(key)
-    print "Plain:    {}".format(plain)
+    print "XOR'd: {}".format(stoh(enc)[:80])
+    print "Key:   {}".format(key)
+    print "Plain: {}".format(plain[:80])
 
 if __name__ == "__main__":
     _test6()
