@@ -62,3 +62,13 @@ if __name__ == "__main__":
             best[2] = score
     print "XOR'd: {}".format(stoh(best[0]))
     print "Plain: {}".format(xor(best[0],best[1]))
+    # Program 5 Tests
+    print "## Program 5 ##"
+    plain = "Burning 'em, if you ain't quick and nimble"
+    key = "ICE"
+    enc = xor(plain, key)
+    expected = "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2"
+    print "Plain:    {}".format(plain)
+    print "Key:      {}".format(key)
+    print "XOR'd:    {}".format(stoh(enc))
+    print "Expected: {}".format(expected)
