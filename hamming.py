@@ -10,7 +10,7 @@ def hamming(a, b):
 		else:
 			bits += (len(a)-len(b))*8
 			break
-	if i < len(b):
+	if len(a) < len(b):
 		bits += (len(b)-len(a))*8
 	return bits
 
