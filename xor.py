@@ -47,7 +47,7 @@ if __name__ == "__main__":
     # Program 4 Tests
     print "## Program 4 ##"
     import requests
-    url = raw_input("URL: ")
+    url = "https://gist.github.com/tqbf/3132713/raw/40da378d42026a0731ee1cd0b2bd50f66aabac5b/gistfile1.txt"
     r = requests.get(url)
     lines = r.content.split("\n")
     best = ['','',total]
