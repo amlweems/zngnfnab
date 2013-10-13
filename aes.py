@@ -39,3 +39,7 @@ def _test8():
             best_line = line
             best_score = score
     print "ECB'd: {}".format(stoh(best_line))
+
+if __name__ == "__main__":
+    _test7()
+    _test8()

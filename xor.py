@@ -118,4 +118,8 @@ def _test6():
     print "Plain: {}".format(plain[:80])
 
 if __name__ == "__main__":
+    _test2()
+    _test3()
+    _test4()
+    _test5()
     _test6()
