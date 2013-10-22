@@ -13,13 +13,3 @@ def hamming(a, b):
 	if len(a) < len(b):
 		bits += (len(b)-len(a))*8
 	return bits
-
-if __name__ == "__main__":
-	# Program 6 Test
-	print "## Program 6 ##"
-	str1 = "this is a test"
-	str2 = "wokka wokka!!!"
-	dist = hamming(str1, str2)
-	print "str1: {}".format(str1)
-	print "str2: {}".format(str2)
-	print "dist: {}".format(dist)
