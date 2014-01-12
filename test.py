@@ -3,6 +3,7 @@ from xor import *
 from hexutils import *
 from hamming import *
 from aes import *
+import random
 import requests
 import pkcs7
 import sys
@@ -108,7 +109,7 @@ def test8():
         if score < best_score:
             best_line = line
             best_score = score
-    print "ECB'd: {}".format(stoh(best_line))
+    print "ECB'd: {}".format(stoh(best_line)[:80])
 
 def test9():
     print "## Program 9 ##"
@@ -131,16 +132,16 @@ def test10():
     print "Plain: {}".format(plain[:80])
 
 def enc_oracle_random(text):
-    key = ''.join(chr(randint(0,255)) for n in range(16))
-    iv = ''.join(chr(randint(0,255)) for n in range(16))
+    key = ''.join(chr(random.randint(0,255)) for n in range(16))
+    iv = ''.join(chr(random.randint(0,255)) for n in range(16))
 
-    before_count = randint(5,10)
-    after_count = randint(5,10)
-    text = ''.join(chr(randint(0,255)) for n in range(before_count)) + text
-    text = text + ''.join(chr(randint(0,255)) for n in range(after_count))
+    before_count = random.randint(5,10)
+    after_count = random.randint(5,10)
+    text = ''.join(chr(random.randint(0,255)) for n in range(before_count)) + text
+    text = text + ''.join(chr(random.randint(0,255)) for n in range(after_count))
     text = pkcs7.encode(text, 16)
     cipher = AES.new(key, AES.MODE_ECB)
-    if randint(0,1):
+    if random.randint(0,1):
         return True, cbc_encrypt(text, key, iv)
     else:
         return False, cipher.encrypt(text)
@@ -162,11 +163,30 @@ def test11():
 def enc_oracle_secret(text, secret, deterministic=False):
     if deterministic:
         random.seed(42)
-    key = ''.join(chr(randint(0,255)) for n in range(16))
+    key = ''.join(chr(random.randint(0,255)) for n in range(16))
 
     text += secret
+    text = pkcs7.encode(text, 16)
     cipher = AES.new(key, AES.MODE_ECB)
     return cipher.encrypt(text)
+
+def test12():
+    print "## Program 12 ##"
+    secret = btos("""Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkgaGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBqdXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUgYnkK""")
+    block_size = 16
+    known = ''
+    print "Brute-forcing bytes..."
+    for n in range(0, len(secret), 16):
+        for m in range(block_size):
+            padding = "X"*(block_size-m-1)
+            goal = enc_oracle_secret(padding, secret, True)
+            padding += known
+            for c in range(256):
+                guess = enc_oracle_secret(padding+chr(c), secret, True)
+                if guess[n:n+block_size] == goal[n:n+block_size]:
+                    known += chr(c)
+                    break
+    print "Secret: {}".format(known[:80])
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] == 'all':
