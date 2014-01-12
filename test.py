@@ -1,7 +1,13 @@
+from Crypto.Cipher import AES
 from xor import *
 from hexutils import *
 from hamming import *
 from aes import *
+import requests
+import pkcs7
+import sys
+
+NUM_TESTS = 11
 
 def test1():
     print "## Program 1 ##"
@@ -11,8 +17,6 @@ def test1():
     print "Hex:          {}".format(hex_str)
     print "Base64:       {}".format(base_str)
     print "Hex'd Base64: {}".format(new_hex_str)
-
-
 
 def test2():
     print "## Program 2 ##"
@@ -106,13 +110,67 @@ def test8():
             best_score = score
     print "ECB'd: {}".format(stoh(best_line))
 
+def test9():
+    print "## Program 9 ##"
+    text = "YELLOW SUBMARINE"
+    padded = pkcs7.encode(text, 20)
+    print "Plain:  {}".format(stoh(text))
+    print "Padded: {}".format(stoh(padded))
+
+def test10():
+    print "## Program 10 ##"
+    url = "https://gist.github.com/tqbf/3132976/raw/f0802a5bc9ffa2a69cd92c981438399d4ce1b8e4/gistfile1.txt"
+    r = requests.get(url)
+    enc = btos(r.content)
+    key = "YELLOW SUBMARINE"
+    iv = "\x00"*16
+    plain = cbc_decrypt(enc, key, iv)
+    print "AES'd: {}".format(stoh(enc)[:80])
+    print "Key:   {}".format(key)
+    print "IV:    {}".format(stoh(iv))
+    print "Plain: {}".format(plain[:80])
+
+def enc_oracle_random(text):
+    key = ''.join(chr(randint(0,255)) for n in range(16))
+    iv = ''.join(chr(randint(0,255)) for n in range(16))
+
+    before_count = randint(5,10)
+    after_count = randint(5,10)
+    text = ''.join(chr(randint(0,255)) for n in range(before_count)) + text
+    text = text + ''.join(chr(randint(0,255)) for n in range(after_count))
+    text = pkcs7.encode(text, 16)
+    cipher = AES.new(key, AES.MODE_ECB)
+    if randint(0,1):
+        return True, cbc_encrypt(text, key, iv)
+    else:
+        return False, cipher.encrypt(text)
+
+def test11():
+    print "## Program 11 ##"
+    url = "https://gist.github.com/tqbf/3132752/raw/cecdb818e3ee4f5dda6f0847bfd90a83edb87e73/gistfile1.txt"
+    r = requests.get(url)
+    enc = btos(r.content)
+    key = "Terminator X: Bring the noise"
+    plain = xor(enc, key)
+    for n in range(5):
+        cbc, enc = enc_oracle_random(plain)
+        if dup_blocks(enc):
+            print "Detected: {}, actually: {}".format("ECB",["ECB","CBC"][cbc])
+        else:
+            print "Detected: {}, actually: {}".format("CBC",["ECB","CBC"][cbc])
+
+def enc_oracle_secret(text, secret, deterministic=False):
+    if deterministic:
+        random.seed(42)
+    key = ''.join(chr(randint(0,255)) for n in range(16))
+
+    text += secret
+    cipher = AES.new(key, AES.MODE_ECB)
+    return cipher.encrypt(text)
+
 if __name__ == "__main__":
-    test1()
-    test2()
-    test3()
-    test4()
-    test5()
-    test6()
-    test6()
-    test7()
-    test8()
+    if len(sys.argv) < 2 or sys.argv[1] == 'all':
+        for n in range(1, NUM_TESTS):
+            eval('test%d()' % n)
+    else:
+        eval('test%d()' % int(sys.argv[1]))
