@@ -44,6 +44,8 @@ def _hammingcrack(enc):
     return keys[0][0]
 
 def _init():
+    global total
+    global char_counts
     if total == 256:
         from nltk.corpus import brown
         for char in brown.raw():
