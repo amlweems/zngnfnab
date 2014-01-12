@@ -188,6 +188,31 @@ def test12():
                     break
     print "Secret: {}".format(known[:80])
 
+def parse_cookie(cookie):
+    import urlparse
+    json = urlparse.parse_qs(cookie)
+    for key in json:
+        json[key] = json[key][0]
+    return json
+
+def profile_for(email):
+    import urllib
+    json = {'email':email,'uid':10,'role':'user'}
+    return urllib.urlencode(json)
+
+def check_admin(enc_profile):
+    dec = cipher.decrypt(enc)
+    json = parse_cookie(dec)
+    return json['role'] == "admin"
+
+def test13():
+    print "## Program 13 ##"
+    key = ''.join(chr(random.randint(0,255)) for n in range(16))
+    profile = profile_for("foo@bar.com")
+    cipher = AES.new(key, AES.MODE_ECB)
+    enc = cipher.encrypt(profile)
+    # todo: implement magic
+
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] == 'all':
         for n in range(1, NUM_TESTS):
