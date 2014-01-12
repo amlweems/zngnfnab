@@ -1,4 +1,3 @@
-from nltk.corpus import brown
 from hexutils import *
 from hamming import hamming
 import requests
@@ -9,8 +8,6 @@ HAMMING_DEPTH = 10
 MAX_KEY_SIZE  = 40
 
 char_counts = [1 for i in range(256)]
-for char in brown.raw():
-    char_counts[ord(char)] += 1
 total = float(sum(char_counts))
 
 def xor(plain, key):
@@ -46,7 +43,15 @@ def _hammingcrack(enc):
     keys.sort(key=lambda x: x[1])
     return keys[0][0]
 
+def _init():
+    if total == 256:
+        from nltk.corpus import brown
+        for char in brown.raw():
+            char_counts[ord(char)] += 1
+        total = float(sum(char_counts))
+
 def crack(enc, key_size=-1):
+    _init()
     if key_size == -1: return _hammingcrack(enc)
     key = ''
     for i in range(key_size):
