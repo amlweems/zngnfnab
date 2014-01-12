@@ -1,6 +1,6 @@
 
 def encode(text, block_size):
-    padding = block_size - len(m)%block_size
+    padding = block_size - len(text)%block_size
     return text + chr(padding)*padding
 
 def decode(text):
